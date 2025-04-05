@@ -1,5 +1,6 @@
 # JAVA_Projects
 ##Java Proje ve Egzersiz Çalışmaları 🚀
+
 Bu depoda, Java programlama dilinde geliştirdiğim proje ve egzersiz çalışmalarımı bulabilirsiniz. Amacım, Java’nın temel kavramlarını öğrenmek ve nesneye yönelik programlama (OOP) prensiplerini uygulayarak becerilerimi geliştirmek.
 
 #İçerik
