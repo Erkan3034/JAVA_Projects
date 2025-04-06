@@ -1,4 +1,5 @@
 package Cinema_Ticket_System_SWING;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -6,124 +7,155 @@ import java.awt.event.ActionListener;
 
 
 public class CinemaReservation extends JFrame {
-    private JButton[][] seats = new JButton[5][8]; // 5 satır, 8 sütun koltuk düzeni
-    private double totalPrice = 0.0; // Toplam fiyat
-    private JLabel priceLabel; // Toplam fiyatı gösteren etiket
+	
+    
+    // koltukları ve fiyat bilgisini tutacak değişkenler
+    private JButton[][] seats = new JButton[5][8]; // 5 satır, 8 sütunluk koltuk düzeni
+    private double totalPrice = 0.0; // toplam bilet fiyatı degiskeni
+    private JLabel priceLabel; // toplam fiyatı gösteren etiket
 
     public CinemaReservation() {
-        setTitle("Sinema Salonu");
+        // Frame ayarları
+        setTitle("Sinema Bilet Sistemi");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-
-        // Arka planı krem rengi yapar
-        getContentPane().setBackground(new Color(245, 245, 220));
-
-        // Üstte "BİLET SİSTEMİ" başlığı
-        JLabel titleLabel = new JLabel("BİLET SİSTEMİ", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-
-        // Koltuk paneli (5x8 grid)
-        JPanel seatPanel = new JPanel(new GridLayout(5, 8, 5, 5));
-        seatPanel.setBackground(new Color(245, 245, 220));
-        initializeSeats(seatPanel);
-
-        // Toplam fiyat etiketi
-        priceLabel = new JLabel("Toplam Fiyat: 0.0 TL", SwingConstants.CENTER);
-        priceLabel.setFont(new Font("Arial", Font.BOLD, 16));
-
-        add(titleLabel, BorderLayout.NORTH);
-        add(seatPanel, BorderLayout.CENTER);
-        add(priceLabel, BorderLayout.SOUTH);
-
         setSize(600, 400);
-        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+        
+        
+        
+        getContentPane().setBackground(new Color(240, 240, 240)); // arkaplan rengi 
+
+        
+        // Başlık
+        JLabel title = new JLabel("SİNEMA BİLET SİSTEMİ", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 24));
+        add(title, BorderLayout.NORTH); // Başlığı üst kısma ekle
+        
+
+        // koltuk panelini oluşturma ve ekleme
+        JPanel seatPanel = createSeatPanel();
+        add(seatPanel, BorderLayout.CENTER);
+        
+        // fiyat etiketini oluşturma  ve ekleme
+        priceLabel = new JLabel("Toplam: 0.0 TL", SwingConstants.CENTER);
+        
+        priceLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        
+        add(priceLabel, BorderLayout.SOUTH); // fiyat alt kısımda
+        
+
         setVisible(true);
+        
     }
 
-    private void initializeSeats(JPanel seatPanel) {
-        for (int row = 0; row < 5; row++) {
-            for (int col = 0; col < 8; col++) {
-                String seatNumber = (row + 1) + "-" + (col + 1);
-                seats[row][col] = new JButton(seatNumber);
-                seats[row][col].setFont(new Font("Arial", Font.BOLD, 12));
-
-                // İlk 2 satır VIP, diğerleri normal koltuk
+    // koltuk panelini oluşturan  metot
+    private JPanel createSeatPanel() {
+    	
+        JPanel panel = new JPanel(new GridLayout(5, 8, 5, 5)); // 5*8 ızgara
+        panel.setBackground(new Color(240, 240, 240));
+        
+        for (int row = 0; row < 5; row++) // 5 satır
+        {  
+            for (int col = 0; col < 8; col++)  //8 sütun
+            { 
+                // Her koltuk için buton oluşturuyruz
+                JButton seat = new JButton((row+1) + "-" + (col+1)); 
+                seat.setFont(new Font("Arial", Font.BOLD, 10));
+                
+                
+                // Koltuk tipini ve fiyatını belirliyoruz - ilk 2 satır Vip
                 if (row < 2) {
-                    seats[row][col].setBackground(Color.CYAN);
-                    seats[row][col].putClientProperty("price", 100.0);
-                    seats[row][col].putClientProperty("type", "VIP");
+                    seat.setBackground(Color.BLUE);
+                    seat.setForeground(Color.WHITE);
+                    seat.putClientProperty("price", 100.0); // koltuk butonuna "price" adında bir özel özellik ekle ve değerini 100.0 TL yapar
+
                 } else {
-                    seats[row][col].setBackground(Color.GREEN);
-                    seats[row][col].putClientProperty("price", 50.0);
-                    seats[row][col].putClientProperty("type", "Normal");
+                    seat.setBackground(Color.GREEN);
+                    seat.putClientProperty("price", 50.0); // Normal fiyat 50 TL
                 }
-                seats[row][col].putClientProperty("sold", false);
-                seats[row][col].putClientProperty("seatNumber", seatNumber);
-
-                seats[row][col].addActionListener(new SeatActionListener(row, col));
-                seatPanel.add(seats[row][col]);
+                
+                // Koltuk durum bilgilerini sakla
+                seat.putClientProperty("sold", false); // key- value 
+                seat.putClientProperty("row", row);
+                seat.putClientProperty("col", col);
+                
+                // Tıklama olayını ekle
+                seat.addActionListener(new SeatClickListener());
+                panel.add(seat);
+                seats[row][col] = seat; // Butonu diziye kaydet
             }
         }
+        return panel;
     }
-
-    private class SeatActionListener implements ActionListener {
-        private int row, col;
-
-        public SeatActionListener(int row, int col) {
-            this.row = row;
-            this.col = col;
-        }
-
+    
+    // Koltuk tıklama olaylarını yöneten sınıf
+    
+    private class SeatClickListener implements ActionListener {
         @Override
+        
         public void actionPerformed(ActionEvent e) {
-            JButton seat = seats[row][col];
-            boolean isSold = (boolean) seat.getClientProperty("sold");
-            double price = (double) seat.getClientProperty("price");
-            String type = (String) seat.getClientProperty("type");
-            String seatNumber = (String) seat.getClientProperty("seatNumber");
+        	
+            JButton clickedSeat = (JButton) e.getSource();
+            
+            boolean isSold = (boolean) clickedSeat.getClientProperty("sold");
+            double price = (double) clickedSeat.getClientProperty("price");
+            int row = (int) clickedSeat.getClientProperty("row");
+            int col = (int) clickedSeat.getClientProperty("col");
+            String seatNumber = (row+1) + "-" + (col+1);
 
-            if (!isSold) { // Satın alma işlemi
-                int confirm = JOptionPane.showConfirmDialog(
-                        CinemaReservation.this,
-                        seatNumber + " numaralı koltuğu " + price + " TL'ye satın almak istiyor musunuz?",
-                        "Satın Alma Onayı",
-                        JOptionPane.YES_NO_OPTION
+            
+            if (!isSold) {
+                // Koltuk satın alma işlemi
+                int choice = JOptionPane.showConfirmDialog(
+                	CinemaReservation.this, 
+                    seatNumber + " numaralı koltuk (" + price + " TL) satın alınsın mı?",
+                    "Onay",
+                    JOptionPane.YES_NO_OPTION
                 );
-
-                if (confirm == JOptionPane.YES_OPTION) {
-                    seat.setBackground(Color.ORANGE); // Koltuğu turuncuya boyar (satıldı)
-                    seat.setText("Satıldı"); // Koltukta "Satıldı" yazısını gösterir
-                    seat.putClientProperty("sold", true); // Koltuğu satılmış olarak işaretler
-                    totalPrice += price; // Toplam fiyata koltuk fiyatını ekler
-                    updatePriceLabel(); // Fiyat etiketini günceller
+                
+                if (choice == JOptionPane.YES_OPTION) {
+                    clickedSeat.setBackground(Color.RED);
+                    clickedSeat.setText("DOLU");
+                    clickedSeat.putClientProperty("sold", true);
+                    totalPrice += price;
+                    updatePrice();
                 }
-            } else { // İptal işlemi
-                int confirm = JOptionPane.showConfirmDialog(
-                        CinemaReservation.this,
-                        seatNumber + " numaralı koltuğu iptal etmek istiyor musunuz?",
-                        "İptal Onayı",
-                        JOptionPane.YES_NO_OPTION
+            } else {
+                // koltuk iptal işlemi
+                int choice = JOptionPane.showConfirmDialog(
+                    CinemaReservation.this, 
+                    seatNumber + " numaralı koltuğu iptal etmek istiyor musunuz?",
+                    "Onay",
+                    JOptionPane.YES_NO_OPTION
                 );
-
-                if (confirm == JOptionPane.YES_OPTION) {
-                    seat.setBackground(type.equals("VIP") ? Color.CYAN : Color.GREEN); // Koltuğu eski rengine döndürür (VIP ise cyan, normal ise yeşil)
-                    seat.setText(seatNumber); // Koltuk numarasını geri yükler
-                    seat.putClientProperty("sold", false); // Koltuğu satılmamış olarak işaretler
-                    totalPrice -= price; // Toplam fiyattan koltuk fiyatını çıkarır
-                    updatePriceLabel(); // Fiyat etiketini günceller
+                
+                if (choice == JOptionPane.YES_OPTION) {
+                    // orjinal rengine döndür / vip mi normal mi kontrol edelim
+                    if (row < 2) {
+                        clickedSeat.setBackground(Color.BLUE);
+                    } else {
+                        clickedSeat.setBackground(Color.GREEN);
+                    }
+                    
+                    clickedSeat.setText(seatNumber);
+                    clickedSeat.putClientProperty("sold", false);
+                    
+                    totalPrice -= price;
+                    updatePrice();
                 }
             }
         }
     }
 
-    private void updatePriceLabel() {
-        // Toplam fiyatı formatlı bir şekilde etikete yazar
-        priceLabel.setText(String.format("Toplam Fiyat: %.1f TL", totalPrice));
+    // toplam fiyatı güncelleyen yardımcı metot
+    private void updatePrice() {
+        priceLabel.setText(String.format("Toplam: %.1f TL", totalPrice));
     }
 
     public static void main(String[] args) {
-    	//Arayüzü baslatır
-        SwingUtilities.invokeLater(CinemaReservation::new);
+        // Swing uygulamasını başlat
+        SwingUtilities.invokeLater(() -> new CinemaReservation());
+        
+        
     }
 }
