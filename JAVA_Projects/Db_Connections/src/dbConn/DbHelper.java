@@ -12,7 +12,7 @@ public class DbHelper {
     private String userName = "root";
 
     // Veritabanı kullanıcı şifresi.
-    private String password = "Erkan1205/*-+";
+    private String password = "password";
 
     // Veritabanı bağlantı adresi. "world" adlı veritabanına bağlanmak için kullanılıyor.
     private String dbUrl = "jdbc:mysql://localhost:3306/deneme"; // db adresi.
